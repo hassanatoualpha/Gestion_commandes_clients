@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Commande #{{ commande.id }} - Administration - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-clipboard-check"></i> Commande #{{ commande.id }}</h4>
+                <span class="badge {{ commande.statutBadgeClass }} fs-6">
+                    {{ commande.statutLabel }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Date :</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {{ commande.date|date('d/m/Y à H:i') }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Client :</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {{ commande.client.nom }} ({{ commande.client.user.email }})
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Téléphone :</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {{ commande.client.telephone }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Statut :</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        <span class="badge {{ commande.statutBadgeClass }} fs-6">
+                            {{ commande.statutLabel }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Produits :</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th>Prix unitaire</th>
+                                        <th>Stock actuel</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for produit in commande.produits %}
+                                        <tr>
+                                            <td>{{ produit.nom }}</td>
+                                            <td>{{ produit.prix }}€</td>
+                                            <td>
+                                                <span class="badge {% if produit.stock > 10 %}bg-success{% elseif produit.stock > 0 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ produit.stock }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-success">
+                                        <th colspan="2">Total</th>
+                                        <th>{{ commande.total }}€</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Actions d'administration</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if not commande.statut %}
+                        <form method="post" action="{{ path('admin_commande_validate', {'id': commande.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('validate' ~ commande.id) }}">
+                            <button class="btn btn-success w-100">
+                                <i class="bi bi-check-circle"></i> Valider la commande
+                            </button>
+                        </form>
+                    {% else %}
+                        <form method="post" action="{{ path('admin_commande_invalidate', {'id': commande.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('invalidate' ~ commande.id) }}">
+                            <button class="btn btn-warning w-100">
+                                <i class="bi bi-clock"></i> Remettre en attente
+                            </button>
+                        </form>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <a href="{{ path('admin_commande_index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour à la liste
+                    </a>
+                    
+                    <form method="post" action="{{ path('admin_commande_delete', {'id': commande.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ commande.id) }}">
+                        <button class="btn btn-danger w-100">
+                            <i class="bi bi-trash"></i> Supprimer la commande
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

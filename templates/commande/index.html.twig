@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Commandes - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-cart-check"></i> Mes Commandes</h1>
+    <a href="{{ path('app_commande_new') }}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Nouvelle Commande
+    </a>
+</div>
+
+{% if commandes is empty %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> Vous n'avez encore passé aucune commande. 
+        <a href="{{ path('app_commande_new') }}">Passer votre première commande</a>
+    </div>
+{% else %}
+    <div class="row">
+        {% for commande in commandes %}
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Commande #{{ commande.id }}</h6>
+                        <span class="badge {{ commande.statutBadgeClass }}">
+                            {{ commande.statutLabel }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar"></i> {{ commande.date|date('d/m/Y à H:i') }}
+                            </small>
+                        </p>
+                        
+                        <div class="mb-2">
+                            <strong>Produits :</strong>
+                            <ul class="list-unstyled ms-3">
+                                {% for produit in commande.produits %}
+                                    <li><i class="bi bi-box"></i> {{ produit.nom }} - {{ produit.prix }}€</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong class="text-success">Total : {{ commande.total }}€</strong>
+                            <a href="{{ path('app_commande_show', {'id': commande.id}) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> Détails
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

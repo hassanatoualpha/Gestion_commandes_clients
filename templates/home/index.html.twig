@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="jumbotron bg-primary text-white p-5 rounded mb-4">
+            <h1 class="display-4">Bienvenue dans notre système de gestion de commandes</h1>
+            <p class="lead">Gérez facilement vos commandes et produits avec notre application moderne et intuitive.</p>
+            {% if not app.user %}
+                <hr class="my-4">
+                <p>Connectez-vous pour accéder à toutes les fonctionnalités ou créez un compte si vous n'en avez pas encore.</p>
+                <a class="btn btn-light btn-lg me-2" href="{{ path('app_login') }}" role="button">Se connecter</a>
+                <a class="btn btn-outline-light btn-lg" href="{{ path('app_register') }}" role="button">S'inscrire</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-cart-check display-1 text-primary mb-3"></i>
+                <h5 class="card-title">Gestion des Commandes</h5>
+                <p class="card-text">Passez et suivez vos commandes en temps réel. Interface simple et efficace.</p>
+                {% if is_granted('ROLE_USER') %}
+                    <a href="{{ path('app_commande_index') }}" class="btn btn-primary">Mes Commandes</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-box-seam display-1 text-success mb-3"></i>
+                <h5 class="card-title">Catalogue Produits</h5>
+                <p class="card-text">Large gamme de produits disponibles avec gestion du stock en temps réel.</p>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('app_produit_index') }}" class="btn btn-success">Gérer les Produits</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-people display-1 text-info mb-3"></i>
+                <h5 class="card-title">Gestion Clients</h5>
+                <p class="card-text">Interface d'administration pour gérer les clients et leurs informations.</p>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('app_client_index') }}" class="btn btn-info">Gérer les Clients</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if app.user %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-circle"></i> Tableau de bord - {{ app.user.email }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% if is_granted('ROLE_USER') %}
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-cart"></i> Actions Client</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="{{ path('app_commande_new') }}" class="text-decoration-none"><i class="bi bi-plus-circle"></i> Nouvelle Commande</a></li>
+                            <li><a href="{{ path('app_commande_index') }}" class="text-decoration-none"><i class="bi bi-list-ul"></i> Mes Commandes</a></li>
+                            <li><a href="{{ path('app_profile') }}" class="text-decoration-none"><i class="bi bi-person"></i> Mon Profil</a></li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {% if is_granted('ROLE_ADMIN') %}
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-gear"></i> Administration</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="{{ path('app_produit_new') }}" class="text-decoration-none"><i class="bi bi-plus-circle"></i> Nouveau Produit</a></li>
+                            <li><a href="{{ path('admin_commande_index') }}" class="text-decoration-none"><i class="bi bi-clipboard-check"></i> Valider Commandes</a></li>
+                            <li><a href="{{ path('app_client_index') }}" class="text-decoration-none"><i class="bi bi-people"></i> Tous les Clients</a></li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h5 class="card-title">À propos de cette application</h5>
+                <p class="card-text">
+                    Cette application de gestion de commandes a été développée avec Symfony 7 dans le cadre d'un projet universitaire.
+                    Elle démontre l'implémentation d'un système complet de e-commerce avec authentification, gestion des rôles,
+                    et opérations CRUD sur les entités principales.
+                </p>
+                <small class="text-muted">Développé par Hassanatou Diallo - Université Gamal Abdel Nasser de Conakry</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
