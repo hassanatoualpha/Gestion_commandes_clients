@@ -7,6 +7,7 @@ use App\Entity\Client;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -15,6 +16,14 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
+
+    private FormFactoryInterface $formFactory;
+
+    public function __construct(FormFactoryInterface $formFactory)
+    {
+        $this->formFactory = $formFactory;
+    }
+
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
@@ -25,7 +34,7 @@ class SecurityController extends AbstractController
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
+        $lastUsername = $authenticationUtils->getLastUsername() ?? '';
 
         return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
     }
@@ -44,10 +53,14 @@ class SecurityController extends AbstractController
         }
 
         $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
+        $form = $this->formFactory->create(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Normalize email: trim and lowercase
+            $normalizedEmail = strtolower(trim($form->get('email')->getData()));
+            $user->setEmail($normalizedEmail);
+
             // encode the plain password
             $user->setPassword(
                 $userPasswordHasher->hashPassword(
@@ -55,6 +68,9 @@ class SecurityController extends AbstractController
                     $form->get('plainPassword')->getData()
                 )
             );
+
+            // Assign ROLE_USER explicitly
+            $user->setRoles(['ROLE_USER']);
 
             $entityManager->persist($user);
 
